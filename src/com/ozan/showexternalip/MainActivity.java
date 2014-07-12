@@ -12,6 +12,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -35,15 +38,23 @@ public class MainActivity extends Activity {
 		        		response.getEntity().writeTo(out);
 		        		out.close();
 		        		final String responseString = out.toString();
-		        		
+
 		        		InetAddress ia = InetAddress.getByName(responseString);
 		        		final String hostname=ia.getCanonicalHostName();
-		        		
+
+		        		WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		        		WifiInfo info = manager.getConnectionInfo();
+
+		        		final String macaddress = info.getMacAddress();
 		        		runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getBaseContext(), "External IP Address: " + responseString + "\n" + "Hostname: " + hostname,
-                      	              Toast.LENGTH_LONG).show();
+                            	String str="External IP Address: " + responseString + "\n" + "Hostname: " + hostname;
+                            	if (macaddress != null) {
+                            		str+="\n" + "WiFi MAC Address: " + macaddress;
+                            	}
+
+                            	Toast.makeText(getBaseContext(), str, Toast.LENGTH_LONG).show();
                            }
                        });
 		        	} else{
